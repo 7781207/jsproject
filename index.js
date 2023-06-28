@@ -1,14 +1,14 @@
 const tastcontainer=document.querySelector(".task__container");
-const savechanges=()=>{
-    const tsdata={
-        id:`{$date.now()}`,
-        imageurl: document.getElementById("imageurl").value,
-        tasktitle: document.getElementById("tasktile").value,
-        tasktype: document.getElementById("tasktype").value,
-        taskdescrip: document.getElementById("taskdes").value,
-    };
-    console.log(tsdata);
-    const abctask=`
+const globalStore=[];
+const localinitialcarddata=()=>{
+    const dstask=localStorage.getItem("tasky");
+    const {card}=JSON.parse(dstask);
+    card.map((tsda)=>{
+        tastcontainer.insertAdjacentHTML("beforeend",generatenewcard(tsda));
+        globalStore.push(tsda);
+    })
+};
+const generatenewcard=(tsdata)=>`
     <div class="col-md-6 col-lg-4" id=${tsdata.id}>
                         <div class="card ">
                             <div class="card-header d-flex justify-content-end gap-2">
@@ -27,7 +27,19 @@ const savechanges=()=>{
                         </div>
                         
                     </div>
-    `;
-    tastcontainer.insertAdjacentHTML("beforeend",abctask);
+ `;
+
+const savechanges=()=>{
+    const tsdata={
+        id:`{$date.now()}`,
+        imageurl: document.getElementById("imageurl").value,
+        tasktitle: document.getElementById("tasktile").value,
+        tasktype: document.getElementById("tasktype").value,
+        taskdescrip: document.getElementById("taskdes").value,
+    };
+
+    tastcontainer.insertAdjacentHTML("beforeend",generatenewcard(tsdata));
+    globalStore.push(tsdata);
+    localStorage.setItem("tasky",JSON.stringify({card:globalStore}));
 
 };

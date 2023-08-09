@@ -17,7 +17,7 @@ const generatenewcard=(tsdata)=>`
     <div class="col-md-6 col-lg-4" id=${tsdata.id}>
                         <div class="card ">
                             <div class="card-header d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-outline-success" ><i class="fa-solid fa-pencil"></i></button>
+                                <button type="button" class="btn btn-outline-success" onclick="editcard.apply(this,arguments)" ><i class="fa-solid fa-pencil" onclick="editcard.apply(this,arguments)"></i></button>
                                 <button type="button" class="btn btn-outline-danger" onclick="deletecard.apply(this,arguments)"><i class="fa-solid fa-trash" onclick="deletecard.apply(this,arguments)"></i></button>
                             </div>
                             <img src=${tsdata.imageurl} class="card-img-top" alt="...">
@@ -27,7 +27,7 @@ const generatenewcard=(tsdata)=>`
                               <a href="#" class="btn btn-primary">${tsdata.tasktype}</a>
                             </div>
                             <div class="card-footer ">
-                                <button type="button" class="btn btn-outline-primary float-end">Open Task</button>
+                                <button type="button" id=${tsdata.id} class="btn btn-outline-primary float-end">Open Task</button>
                             </div>
                         </div>
                         
@@ -65,3 +65,69 @@ const deletecard=(event)=>{
     }
     
 };
+//contenteditable
+ const editcard=(event)=>{
+    event=window.event;
+    const targetId=event.target.id;
+    const tagname=event.target.tagName;
+    let parenttask;
+    if(tagname==="BUTTON"){
+        parenttask=event.target.parentNode.parentNode;
+    }else{
+        parenttask=event.target.parentNode.parentNode.parentNode;
+    }
+    let tasktitle=(parenttask.childNodes[5].childNodes[1]);
+    let taskdes=(parenttask.childNodes[5].childNodes[3]);
+    let tasktype=(parenttask.childNodes[5].childNodes[5]);
+    let submit=(parenttask.childNodes[7].childNodes[1]);
+    //console.log(parenttask.childNodes[5].childNodes);
+    tasktitle.setAttribute("contenteditable","true");
+    taskdes.setAttribute("contenteditable","true");
+    tasktype.setAttribute("contenteditable","true");
+    submit.setAttribute("onclick","saveeditchanges.apply(this,arguments)");
+    submit.innerHTML="save changes";
+ };
+
+
+ //save the changes
+ const saveeditchanges=(event)=>{
+    event=window.event;
+    const targetId=event.target.id;
+    const tagname=event.target.tagName;
+    let parenttask;
+    if(tagname==="BUTTON"){
+        parenttask=event.target.parentNode.parentNode;
+    }else{
+        parenttask=event.target.parentNode.parentNode.parentNode;
+    }
+    let tasktitle=(parenttask.childNodes[5].childNodes[1]);
+    let taskdes=(parenttask.childNodes[5].childNodes[3]);
+    let tasktype=(parenttask.childNodes[5].childNodes[5]);
+    let submit=(parenttask.childNodes[7].childNodes[1]);
+    const edited={
+        tasktitle:tasktitle.innerHTML,
+        tasktype:tasktype.innerHTML,
+        taskdescrip:taskdes.innerHTML,
+    };
+    globalStore = globalStore.map((caect)=>{
+        if(caect.id === targetId){
+            return {
+                id:caect.id,
+                imageurl: caect.imageurl,
+                tasktitle:edited.tasktitle,
+                tasktype: edited.tasktype,
+               taskdescrip:edited.taskdescrip,
+            };
+
+            
+        }
+        return caect;
+    });
+    localStorage.setItem("tasky",JSON.stringify({card:globalStore}));
+    tasktitle.setAttribute("contenteditable","false");
+    taskdes.setAttribute("contenteditable","false");
+    tasktype.setAttribute("contenteditable","tfalse");
+    submit.removeAttribute("onclick");
+    submit.innerHTML="Open Task";
+    
+ };
